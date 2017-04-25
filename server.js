@@ -5,6 +5,8 @@ const hbs = require('hbs');
 
 var app = express();
 
+const logsDir = "logs/";
+
 // Configuring app
 
 // app.use((req, res, next) => res.render('maintenance.hbs'));
@@ -13,11 +15,12 @@ hbs.registerPartials(__dirname + '/views/partials')
 app.set('view engine', 'hbs');
 app.use(express.static(__dirname + '/public'));
 
-app.use((req, res, next) =>{
+app.use((req, res, next) => {
     var now = new Date().toString();
     var log = `[${now}] ${req.method} ${req.url}`
     console.log(log);
-    fs.appendFile('logs/server.log', log + '\n', (error) => { if (error) console.log('Cant write to log') });
+    if (!fs.existsSync(logsDir)) fs.mkdirSync(logsDir);
+    fs.appendFile(`${logsDir}server.log`, log + '\n', (error) => { if (error) console.log('Cant write to log') });
     next();
 });
 
@@ -41,6 +44,8 @@ app.get('/about', (req, res) => {
 
 // Listening
 
-app.listen(process.env.PORT || 3000, process.env.IP || "0.0.0.0", () => {
+const port = process.env.PORT || 3000;
+const ip = process.env.IP || "0.0.0.0";
+app.listen(port, ip, () => {
     console.log('Server is up.')
 });
